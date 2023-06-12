@@ -8,8 +8,12 @@ class Data_Utils :
     @staticmethod
     def graphe(liste_image, liste_titre)->None:
         size = len(liste_image)
+        if size%3==0:
+            height = size//3
+        else:
+            height = len(liste_image)//3 + 1
         for i, (image, titre) in enumerate(zip(liste_image, liste_titre),start=1):
-                plt.subplot(1,size,i)
+                plt.subplot(height,3,i)
                 # Original image
                 plt.imshow(image[:,:,::-1], origin="lower")
                 plt.title(titre)
@@ -20,7 +24,7 @@ class Data_Utils :
 
     @staticmethod
     def load(image_path:str):
-        if (os.path.basename(image_path)==".Ds_store"):
+        if (os.path.basename(image_path)==".DS_Store"):
             print("Fichier .Ds_store trouvé, relancer le programme")
             img = None
             os.remove(image_path)
@@ -49,7 +53,7 @@ class Data_Utils :
                     os.remove(chemin_fichier)  
          
     @staticmethod
-    def resize(dossier_hr:str, dossier_lr:str, dossier_hr2:str, ratio=4)->None:
+    def resize(dossier_hr:str,  dossier_hr2:str, dossier_lr:str, ratio=4)->None:
          
         Data_Utils.create_folder(dossier_hr2)
         Data_Utils.create_folder(dossier_lr)
