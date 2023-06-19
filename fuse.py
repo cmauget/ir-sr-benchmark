@@ -95,12 +95,14 @@ if __name__ == "__main__":
     thermal_image_path = 'irt.png'
     visible_image_path = 'vis.png'
 
-
-for func in list_func:
-    fused_image = func(thermal_image_path, visible_image_path)
-    cv2.imshow('Image fused w/ '+func.__name__, fused_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    temperature_3d_representation(thermal_image_path)
+    for func in list_func:
+        fused_image = func(thermal_image_path, visible_image_path)
+        #cv2.imshow('Image fused w/ '+func.__name__, fused_image)
+        print(func.__name__+".png")
+        cv2.imwrite(func.__name__+".png", fused_image)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
     
 
 """

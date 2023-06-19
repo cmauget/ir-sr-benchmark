@@ -21,19 +21,5 @@ class LapSRN:
         #print("Done in", execution_time, "s")
         return res, execution_time
 
-if __name__ == "__main__" :
 
-    lim_x = [0 ,800]
-    lim_y = [0,800]
-    div = 2
-    img = Data_Utils.load("image2.tif")
-    model = LapSRN()
-    result, _ = model.upscale(img)
-    resized = cv2.resize(img,dsize=None,fx=2,fy=2)
-    liste_image = [img, result, resized]
-    liste_titre = ["image", "sr", "opencv"]
-
-    Data_Utils.graphe(liste_image, liste_titre)
-
-    cv2.imwrite("image2.jpg", result)
     
