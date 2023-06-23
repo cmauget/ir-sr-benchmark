@@ -33,6 +33,16 @@ class Data_Utils :
         return img
     
     @staticmethod
+    def loadio(image_path:str):
+        if (os.path.basename(image_path)==".DS_Store"):
+            print("Fichier .Ds_store trouvé, relancer le programme")
+            img = None
+            os.remove(image_path)
+        else:
+            img = imageio.imread(image_path)
+        return img
+    
+    @staticmethod
     def find_path(folder_path:str) -> list[str]:
         chemin = []
         for nom_fichier in os.listdir(folder_path):
@@ -122,7 +132,7 @@ class Data_Utils :
 
         for chemin in chemin_ir:
 
-            image = imageio.imread(chemin)
+            image = Data_Utils.loadio(chemin)
 
             image_scaled = cv2.normalize(image, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
             image_rgb = cv2.cvtColor(image_scaled, cv2.COLOR_GRAY2RGB)
