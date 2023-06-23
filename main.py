@@ -16,6 +16,11 @@ from tqdm import tqdm #type:ignore
 import random
 import time
 
+verbose = False
+
+classes = [EDSR, PSRGAN] #[ESPCN, FSRCNN,  ESRGAN, ESRGAN2, PSRGAN, EDSR, LapSRN ]
+
+
 dossier_lr = "lr_image"
 dossier_sr = "sr_image"
 dossier_hr = "hr2_image"
@@ -30,6 +35,9 @@ temps_execution_classe = []
 ssim_values_classe = []
 mean_psnr_values = []
 mean_ssim_values = []
+liste_image = []
+liste_titre = []
+nom_classes = []
 
 blur = (1,1)
 
@@ -47,12 +55,6 @@ random.shuffle(chemins_hr)
 random.seed(seed) 
 random.shuffle(chemins_lr)
 
-liste_image = []
-liste_titre = []
-
-
-classes = [ESPCN, FSRCNN,  ESRGAN, ESRGAN2, PSRGAN, EDSR, LapSRN ]
-nom_classes = []
 for classe in classes:  
     model = classe()
     nom_classe = classe.__name__
@@ -76,67 +78,73 @@ for classe in classes:
         resultats.append(image_sr)
         temps_execution.append(execution_time)
 
-        image_hr = cv2.resize(image_hr, (image_sr.shape[1], image_sr.shape[0]))
-        #les deux images doivent avoir la même talle pour le PSNR
+        if verbose:
+            image_hr = cv2.resize(image_hr, (image_sr.shape[1], image_sr.shape[0]))
 
-        psnr = cv2.PSNR(image_hr, image_sr)
-        psnr_values_classe.append(psnr)
+            psnr = cv2.PSNR(image_hr, image_sr)
+            psnr_values_classe.append(psnr)
 
-        ssim = structural_similarity(image_hr.flatten(), image_sr.flatten())
-        ssim_values.append(ssim)
+            ssim = structural_similarity(image_hr.flatten(), image_sr.flatten())
+            ssim_values.append(ssim)
 
         kernel = np.array([[0,-1,0], [-1,5,-1], [0,-1,0]])
         #image_sr = cv2.filter2D(image_sr, -1, kernel)
         cv2.imwrite(chemin_, image_sr)
 
-    liste_image.append(image_sr)
-    liste_titre.append(nom_classe)
-    psnr_values.append(psnr_values_classe)
-    mean = np.mean(temps_execution) 
-    print("\033[1mTemps d'execution moyen :\033[0m",mean, "s" )
-    print("\033[1mPNSR moyen :\033[0m",np.mean(psnr_values_classe),"db" )
-    print("\033[1mSSIM moyen :\033[0m",np.mean(ssim_values) )
-    temps_execution_classe.append(mean)
-    ssim_values_classe.append(ssim_values)
-    mean_psnr_values.append(np.mean(psnr_values_classe))
-    mean_ssim_values.append(np.mean(ssim_values))
+
+    if verbose:
+
+        liste_image.append(image_sr)
+        liste_titre.append(nom_classe)
+        psnr_values.append(psnr_values_classe)
+        mean = np.mean(temps_execution) 
+        temps_execution_classe.append(mean)
+        ssim_values_classe.append(ssim_values)
+        mean_psnr_values.append(np.mean(psnr_values_classe))
+        mean_ssim_values.append(np.mean(ssim_values))
+        
+        print("\033[1mTemps d'execution moyen :\033[0m",mean, "s" )
+        print("\033[1mPNSR moyen :\033[0m",np.mean(psnr_values_classe),"db" )
+        print("\033[1mSSIM moyen :\033[0m",np.mean(ssim_values) )
 
 
-liste_image.append(image_hr)
-liste_image.append(image_lr)
-liste_titre.append("Image haute résolution") 
-liste_titre.append("Image basse résolution")
+if verbose:
 
-d.graphe(liste_image, liste_titre)
+    liste_image.append(image_hr)
+    liste_image.append(image_lr)
+    liste_titre.append("Image haute résolution") 
+    liste_titre.append("Image basse résolution")
 
-for i in range(len(classes)):
-    plt.plot(psnr_values[i], label=nom_classes[i])
-plt.xticks(np.arange(len(nom_classes)))
-plt.xlabel('Image')
-plt.ylabel('PSNR')
-plt.title('PSNR Comparison')
-plt.legend()
-plt.show()
+    d.graphe(liste_image, liste_titre)
 
-for i, methode in enumerate(nom_classes):
-    plt.scatter(mean_psnr_values[i], mean_ssim_values[i], label = methode)
-plt.xlabel('PSNR (dB)')
-plt.ylabel('SSIM')
-plt.title('PSNR/SSIM')
-plt.legend()
-plt.show()
+    for i in range(len(classes)):
+        plt.plot(psnr_values[i], label=nom_classes[i])
+    plt.xticks(np.arange(len(nom_classes)))
+    plt.xlabel('Image')
+    plt.ylabel('PSNR')
+    plt.title('PSNR Comparison')
+    plt.legend()
+    plt.show()
 
-for i in range(len(classes)):
-    plt.plot(ssim_values_classe[i], label=classes[i].__name__)
-plt.xlabel('Image')
-plt.ylabel('SSIM')
-plt.title('SSIM Comparison')
-plt.legend()
-plt.show()
+    for i, methode in enumerate(nom_classes):
+        plt.scatter(mean_psnr_values[i], mean_ssim_values[i], label = methode)
+    plt.xlabel('PSNR (dB)')
+    plt.ylabel('SSIM')
+    plt.title('PSNR/SSIM')
+    plt.legend()
+    plt.show()
 
-plt.bar(nom_classes, temps_execution_classe)
-plt.xlabel('Classe')
-plt.ylabel('Temps d\'exécution moyen (s)')
-plt.title('Temps d\'exécution moyen par méthodes')
-plt.show()
+    for i in range(len(classes)):
+        plt.plot(ssim_values_classe[i], label=classes[i].__name__)
+    plt.xlabel('Image')
+    plt.ylabel('SSIM')
+    plt.title('SSIM Comparison')
+    plt.legend()
+    plt.show()
+
+    plt.bar(nom_classes, temps_execution_classe)
+    plt.xlabel('Classe')
+    plt.ylabel('Temps d\'exécution moyen (s)')
+    plt.title('Temps d\'exécution moyen par méthodes')
+    plt.show()
 
