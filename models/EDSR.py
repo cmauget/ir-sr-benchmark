@@ -3,7 +3,7 @@ import time
 
 class EDSR:
 
-    def __init__(self, path_ = "models/models/", mult_=4):
+    def __init__(self, path_ = "models/models/", device_="", mult_=4):
         if mult_==4:
             self.path=path_+"EDSR_x4.pb"
         else :

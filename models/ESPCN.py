@@ -3,7 +3,7 @@ import time
 
 class ESPCN:
 
-    def __init__(self, path_ = "models/models/ESPCN_x4.pb"):
+    def __init__(self, device_="", path_ = "models/models/ESPCN_x4.pb"):
         self.path = path_
         self.sr = cv2.dnn_superres.DnnSuperResImpl_create()
         self.sr.readModel(self.path) 

@@ -1,10 +1,10 @@
 import cv2 #type: ignore
-from data_utils import Data_Utils
+from utils.data_utils import Data_Utils
 import time
 
 class LapSRN:
 
-    def __init__(self, path_ = "models/models/LapSRN_x4.pb"):
+    def __init__(self, device_="", path_ = "models/models/LapSRN_x4.pb"):
         self.path = path_
         self.sr = cv2.dnn_superres.DnnSuperResImpl_create()
         self.sr.readModel(self.path) 

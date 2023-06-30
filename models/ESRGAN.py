@@ -1,7 +1,7 @@
 import cv2 #type:ignore
 import numpy as np #type:ignore
 import torch #type:ignore
-from data_utils import Data_Utils
+from utils.data_utils import Data_Utils
 import models.models_utils.RRDBNet_arch as arch
 import time
 
