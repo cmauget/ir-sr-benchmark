@@ -1,6 +1,6 @@
 import os
 import cv2 #type:ignore
-from data_utils import Data_Utils
+from utils.data_utils import Data_Utils
 import matplotlib.pyplot as plt #type:ignore
 import numpy as np #type:ignore
 from skimage.metrics import normalized_mutual_information #type:ignore
