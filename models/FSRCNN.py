@@ -1,5 +1,5 @@
 import cv2 #type: ignore
-from utils.data_utils import Data_Utils
+from utils.utils import Data_Utils
 import time
 
 class FSRCNN:
