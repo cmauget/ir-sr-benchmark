@@ -4,3 +4,5 @@ __pycache__
 models/__pycache__
 .DS_Store
 *.png
+*.jpg
+node_modules
