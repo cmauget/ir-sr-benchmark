@@ -1,5 +1,5 @@
 from utils.utils import Data_Utils as d
-from PIL import Image
+from PIL import Image #type: ignore
 
 
 def crop_image(image_path, output_folder):

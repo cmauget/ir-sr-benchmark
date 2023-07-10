@@ -14,7 +14,6 @@ def main():
     
     if uploaded_file is not None:
 
-        image_path = "temp_image.jpg"
         image = Image.load_streamlit(uploaded_file)
         
         if st.button("Détecter"):

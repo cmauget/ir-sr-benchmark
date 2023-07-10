@@ -17,7 +17,7 @@ def main():
 
     st.title("Upscaler")
 
-    st.write("Choisissez un algrotihme, l'accélérateur (cpu par défaut, cuda si gpu NVIDIA, mps si apple sillicone), et enfin les images à uploader")
+    st.write("Choisissez un algorithme, l'accélérateur (cpu par défaut, cuda si gpu NVIDIA, mps si apple sillicone), et enfin les images à uploader")
 
     selected_upscalers = st.sidebar.multiselect("Sélectionner les upscalers", upscaler_classes, default=FSRCNN, format_func=lambda x: x.__name__)
 

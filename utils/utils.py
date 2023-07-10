@@ -37,7 +37,8 @@ class Image:
             f.write(uploaded_file.getbuffer())
         if bw:
             image = cv2.imread(image_path, 0)
-        image = cv2.imread(image_path)
+        else: 
+            image = cv2.imread(image_path)
 
         return image
     
