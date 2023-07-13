@@ -1,9 +1,9 @@
 from utils.utils import Data_Utils as d
-from PIL import Image #type: ignore
+from PIL import Image as I #type: ignore
 
 
 def crop_image(image_path, output_folder):
-    image = Image.open(image_path)
+    image = I.open(image_path)
     image_width, image_height = image.size
     square_size = 96
 
@@ -57,10 +57,10 @@ elif (val == 2):
 
 elif (val == 3):
 
-    dossier_hr = "gray_image"
-    dossier_hr2 = "hr2_image"
+    dossier_hr = "../Images/hr_image"
+    dossier_hr2 = "../Images/hr2_image"
 
-    dossier_lr = "lr_image"
+    dossier_lr = "../Images/lr_image"
 
     d.create_folder(dossier_hr2)
     d.create_folder(dossier_lr)

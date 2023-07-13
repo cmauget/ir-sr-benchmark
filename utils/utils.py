@@ -5,14 +5,37 @@ import imageio.v2 as imageio #type:ignore
 import tensorflow as tf #type: ignore
 import numpy as np #type:ignore
 
+#---------------------------Image----------------------------#
+
 class Image:
 
     @staticmethod
-    def save(image_path:str, image):
+    def save(image_path:str, image)->None:
+        """Permet d'enregister une image
+
+        Parameters
+        ----------
+        image_path : str
+            Le chemin ou enregistrer l'image
+        image : numpy.ndarray
+            L'image a enregister
+        """
         cv2.imwrite(image_path, image)
 
     @staticmethod
     def load(image_path:str):
+        """Permet de charger une image standard
+        
+        Parameters
+        ----------
+        image_path : str
+            Le chemin de l'image à charger
+
+        Returns
+        ----------
+        img : numpy.ndarray
+            L'image chargée
+        """
         if (os.path.basename(image_path)==".DS_Store"):
             print("Fichier .Ds_store trouvé, relancer le programme")
             img = None
@@ -23,6 +46,18 @@ class Image:
     
     @staticmethod
     def loadio(image_path:str):
+        """Permet d'enregister une image avec 1 channel
+        
+        Parameters
+        ----------
+        iamge_path : str
+            Le chemin de l'image à charger
+
+        Returns
+        ----------
+        img : numpy.ndarray
+            L'image chargée
+        """
         if (os.path.basename(image_path)==".DS_Store"):
             print("Fichier .Ds_store trouvé, relancer le programme")
             img = None
@@ -33,22 +68,70 @@ class Image:
     
     @staticmethod
     def load_streamlit(uploaded_file, image_path = "temp_image.tif", bw = False):
+        """Permet d'enregister une image issue du widget file uploader
+        de streamlit
+        
+        Parameters
+        ----------
+        uploaded_file : 
+            Sortie du widget file_uploader
+        image_path : str, optional
+            Fichier temporaire ou l'image sera enregistré
+        bw : boolean, optional
+            Si vrai, l'image sera chargée en noir et blanc
+        
+        Returns
+        ----------
+        img : numpy.ndarray
+            L'image chargée
+        """
         with open(image_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         if bw:
-            image = cv2.imread(image_path, 0)
+            img = cv2.imread(image_path, 0)
         else: 
-            image = cv2.imread(image_path)
+            img = cv2.imread(image_path)
 
-        return image
+        return img
     
     @staticmethod
     def invert_image(image):
-        return cv2.bitwise_not(image)
+        """Permet d'inverser une image
+        
+        Parameters
+        ----------
+        image : numpy.ndarray
+            L'image à inverser
+        
+        Returns
+        ----------
+        img : numpy.ndarray
+            L'image chargée
+        """
+        img = cv2.bitwise_not(image)
+        return img
     
     @staticmethod
     def resize_img(image_hr, ratio=4):
+        """Resize l'image pour la super-résolution
 
+        1/ Il crée une image dans la dimensiion et divisible par 4
+        2/ Il divise par quatre la résolution de l'image
+        
+        Parameters
+        ----------
+        image : numpy.ndarray
+            L'image à inverser
+        ratio : int, optional
+            Le ration pour reduire l'image
+        
+        Returns
+        ----------
+        image_hr2: numpy.ndarray
+            L'image divisble par 4
+        image_lr: numpy.ndarray
+            L'image divisée
+        """
         largeur_hr = image_hr.shape[1]
         hauteur_hr = image_hr.shape[0]
 
@@ -64,53 +147,116 @@ class Image:
         return image_hr2, image_lr
     
     @staticmethod
-    def crop_img(input_image, crop_coords):
-        cropped_img = input_image[crop_coords[0]:crop_coords[1], crop_coords[2]:crop_coords[3]]
-        return cropped_img
+    def crop_img(image, crop_coords):
+        """Crop l'image en fonction des coordonées entrées
+        
+        Parameters
+        ----------
+        image : numpy.ndarray
+            L'image à crop
+        croop_coords : tuples
+            Les coordonées ou cropper dans l'ordre [x1, x2, y1, y2]
+        
+        Returns
+        ----------
+        img: numpy.ndarray
+            L'image crop
+        """
+        img = image[crop_coords[0]:crop_coords[1], crop_coords[2]:crop_coords[3]]
+        return img
 
-    
+
+#-------------------------Data_Utils--------------------------#
+
 class Data_Utils :
 
     @staticmethod
     def graphe(liste_image, liste_titre)->None:
+        """Affiche des images en ligne de 3
+
+        Les deux premiers titres sont affichés en gras
+        
+        Parameters
+        ----------
+        liste_image : list[numpy.ndarray]
+            Liste des images à afficher
+        liste_titre : list[str]
+            Liste des titres associées aux images
+        
+        """
         size = len(liste_image)
         if size%3==0:
             height = size//3
         else:
             height = len(liste_image)//3 + 1
         for i, (image, titre) in enumerate(zip(liste_image, liste_titre),start=1):
+                dec = 40
                 plt.subplot(height,3,i)
+                if i == 1:
+                    dec = dec/4
+                    plt.title(titre, fontweight='bold')
+                elif i == 2:
+                    plt.title(titre, fontweight='bold')
+                else:
+                    plt.title(titre)
                 # Original image
                 plt.imshow(image[:,:,::-1], origin="lower")
-                plt.title(titre)
-                plt.xlim(image.shape[1]//8, 2*image.shape[1]//8)  
+                
+                plt.xlim(image.shape[1]//8 + dec, 2*image.shape[1]//8 +dec)  
                 plt.ylim(2*image.shape[0]//8,image.shape[0]//8) 
+                plt.axis('off')
         plt.tight_layout()
         plt.show()
     
     @staticmethod
     def find_path(folder_path:str) -> list[str]:
-        chemin = []
+        """Retrouve les chemins des images d'un dossier
+        
+        Parameters
+        ----------
+        folder_path : str
+            Le dossier ou se trouve les images
+
+        Returns
+        ----------
+        liste_chemin: list[str]
+            La liste de tout les chemis des images
+        """
+        liste_chemin = []
         for nom_fichier in os.listdir(folder_path):
             chemin_ = os.path.join(folder_path, nom_fichier)
-            chemin.append(chemin_)
+            liste_chemin.append(chemin_)
         
-        return chemin
+        return liste_chemin
     
     @staticmethod
-    def create_folder(fodler_path:str, rm=True)->None :
-         
-        if not os.path.exists(fodler_path):
-            os.makedirs(fodler_path)
+    def create_folder(folder_path:str, rm=False)->None :
+        """Crée un dossier
+
+        Il vérifie que le dossier existe, le crée sinon et supprime
+        son contenue avant si besoin
+        
+        Parameters
+        ----------
+        folder_path : str
+            Le chemin du dossier à créer
+        rm : Boolean, optional
+            Si vrai, le contenu du dossier sera supprimé avant
+        """
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
 
         if rm:
-            for chemin_fichier in Data_Utils.find_path(fodler_path): 
+            for chemin_fichier in Data_Utils.find_path(folder_path): 
                 if os.path.isfile(chemin_fichier):  
                     os.remove(chemin_fichier)  
          
     @staticmethod
     def resize(dossier_hr:str,  dossier_hr2:str, dossier_lr:str, ratio=4)->None:
-         
+        """Resize l'image pour la super-résolution (legacy)
+
+        Prend en entrée les chemins des dossiers
+        """
         Data_Utils.create_folder(dossier_hr2)
         Data_Utils.create_folder(dossier_lr)
 
@@ -143,12 +289,20 @@ class Data_Utils :
 
     @staticmethod    
     def crop(input_image:str, output_image:str, crop_coords):
+        """Crop l'image (legacy)
+
+        Prend en entrée les chemins des dossiers
+        """
         img = cv2.imread(input_image)
         cropped_img = img[crop_coords[0]:crop_coords[1], crop_coords[2]:crop_coords[3]]
         cv2.imwrite(output_image, cropped_img)
 
     @staticmethod
     def convert(dossier_ir:str, dossier_hr:str)->None:
+        """Convertit l'image 1 channel en RGB (legacy)
+
+        Prend en entrée les chemins des dossiers
+        """
         chemin_ir = []
         Data_Utils.create_folder(dossier_hr)
         chemin_ir = Data_Utils.find_path(dossier_ir)
@@ -165,12 +319,23 @@ class Data_Utils :
             cv2.imwrite(chemin_, image_rgb)
 
 
+
+
+#-------------------------Model_Utils--------------------------#
+
 tf.get_logger().setLevel('ERROR')
 
 class Model_utils:
-
+    
     @staticmethod
     def create_model():
+        """Crée le modèle pour la classification
+
+        Returns
+        ----------
+        model: tf.model
+            La structure du model de classification
+        """
         data_augmentation = tf.keras.Sequential(
         [
             tf.keras.layers.experimental.preprocessing.RandomFlip("horizontal"),
@@ -208,10 +373,26 @@ class Model_utils:
 
         return model
     
+    
     @staticmethod
     def predict_and_draw_boxes(image, model):
+        """Prédit la position des fissures
+
+        Récupére l'image, la découpe en carrée de 96px, fait passer les carrées
+        dans le modèle, affiche un carrée vert si une fissure est détéctée
         
-        # Découper l'image en carrés de 96x96
+        Parameters
+        ----------
+        image: numpy.ndarray
+            L'image 
+        model: tf.model
+            Le model pour les prédictions
+
+        Returns
+        ----------
+        image: numpy.ndarray
+            L'image avec les prédictions
+        """
         height, width, _ = image.shape
         num_crops = min(height, width) // 96
         crops = []
@@ -220,18 +401,13 @@ class Model_utils:
             for j in range(num_crops):
                 crop = image[i*96:(i+1)*96, j*96:(j+1)*96]
                 crops.append(crop)
-        
-        # Convertir les crops en un tableau NumPy
+
         crops = np.array(crops)
-        
-        # Normaliser les valeurs des pixels entre 0 et 1
+
         crops = crops 
-        
-        # Effectuer les prédictions
+
         predictions = model.predict(crops)
-        #print(predictions)
         
-        # Dessiner des carrés autour des prédictions positives
         for idx, pred in enumerate(predictions):
             i = idx // num_crops
             j = idx % num_crops
@@ -244,6 +420,4 @@ class Model_utils:
             else:
                 col = (255,0,0)
             
-        
-        # Afficher l'image avec les carrés dessinés
         return image
