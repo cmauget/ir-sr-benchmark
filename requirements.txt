@@ -6,5 +6,9 @@ numpy
 imageio
 Pillow
 matplotlib
-
+torch 
+torchvision 
+torchaudio
 PyWavelets
+scikit-image
+tqdm
