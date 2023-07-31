@@ -60,6 +60,14 @@ class Fuse:
 
         return contours_image
 
+    @staticmethod
+    def add_channel(thermal, visible):
+
+        thermal_image = cv2.resize(thermal, (visible.shape[1], visible.shape[0]))
+        merged_image = cv2.merge((visible[:, :, 0:3], thermal_image))
+
+        return merged_image
+
     @staticmethod  
     def temperature_3d_representation(thermal):
 
@@ -90,21 +98,8 @@ if __name__ == "__main__":
     thermal = cv2.imread(thermal_image_path,0)
     visible = cv2.imread(visible_image_path,0)
 
-    #Fuse.temperature_3d_representation(thermal)
     for func in list_func:
         fused_image = func(thermal, visible)
-        #cv2.imshow('Image fused w/ '+func.__name__, fused_image)
         print(func.__name__+".png")
         cv2.imwrite(func.__name__+".png", fused_image)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
-    
 
-"""
-    for i in range(25):
-
-        fused_image = temperature_contours(thermal_image_path, visible_image_path, temperature_threshold=i*10)
-        cv2.imshow('Image fused w/ '+func.__name__ + "tresh : "+ str(i*10), fused_image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-"""

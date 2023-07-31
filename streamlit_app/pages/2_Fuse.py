@@ -11,7 +11,7 @@ def main():
     st.title("Fuse")
     st.write("Sélectionnez la méthode de fusion, upload l'image visible (en premier) puis la thermique. Si le résultat n'est pas satisfaisant cochez Invert Thermal Image.")
 
-    fusion_type = st.sidebar.selectbox("Select fusion type", ["Wavelet", "Multiplicative", "Additive"])
+    fusion_type = st.sidebar.selectbox("Select fusion type", ["Wavelet", "Multiplicative", "Additive","New"])
 
     uploaded_files = st.sidebar.file_uploader("Upload visible and thermal images", type=["png", "jpg", "tif"], accept_multiple_files=True)
 
@@ -34,6 +34,10 @@ def main():
             fused_image = Fuse.multiplicative_fusion(thermal_array, visible_array)
         elif fusion_type == "Wavelet":
             fused_image = Fuse.wavelet_fusion(thermal_array, visible_array)
+        elif fusion_type == "New":
+            visible_image = Image.load_streamlit(uploaded_files[0])
+            visible_array = np.array(visible_image)
+            fused_image = Fuse.add_channel(thermal_array, visible_array)
 
         
         save_path = save_path_r + f"{uploaded_files[0].name.split('.')[0]}_{fusion_type}.png"                
