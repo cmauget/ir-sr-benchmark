@@ -1,9 +1,9 @@
 import os
 import cv2 #type:ignore
 from utils.utils import Data_Utils as d
+from utils.utils import Image
 import matplotlib.pyplot as plt #type:ignore
 import numpy as np #type:ignore
-from skimage.metrics import normalized_mutual_information #type:ignore
 from skimage.metrics import structural_similarity #type:ignore
 from models.EDSR import EDSR
 from models.ESPCN import ESPCN
@@ -16,14 +16,14 @@ from tqdm import tqdm #type:ignore
 import random
 import time
 
-verbose = False
+verbose = True
 
-classes = [EDSR, PSRGAN] #[ESPCN, FSRCNN,  ESRGAN, ESRGAN2, PSRGAN, EDSR, LapSRN ]
+classes = [EDSR, ESPCN, FSRCNN, LapSRN, PSRGAN, ESRGAN2, ESRGAN]
 
 
-dossier_lr = "lr_image"
-dossier_sr = "sr_image"
-dossier_hr = "hr2_image"
+dossier_lr = "../Images/lr_image"
+dossier_sr = "../Images/sr_image"
+dossier_hr = "../Images/hr2_image"
 
 chemins_lr = []
 chemins_hr = []
@@ -63,10 +63,12 @@ for classe in classes:
     temps_execution = []
     ssim_values = []
 
-    for chemin_lr, chemin_hr in zip(chemins_lr, tqdm(chemins_hr, total=len(chemins_hr)-1, initial=0)):
+    for chemin_lr, chemin_hr in zip(chemins_lr, tqdm(chemins_hr, total=len(chemins_hr), initial=1)):
 
-        image_lr = d.load(chemin_lr)
-        image_hr = d.load(chemin_hr)
+        image_lr = Image.load(chemin_lr)
+        image_hr = Image.load(chemin_hr)
+
+        print(type(image_hr))
         
         image_sr, execution_time = model.upscale(image_lr)
         
@@ -110,10 +112,10 @@ for classe in classes:
 
 if verbose:
 
-    liste_image.append(image_hr)
-    liste_image.append(image_lr)
-    liste_titre.append("Image haute résolution") 
-    liste_titre.append("Image basse résolution")
+    liste_image.insert(0, image_hr)
+    liste_image.insert(0, image_lr)
+    liste_titre.insert(0, "Image haute \n résolution") 
+    liste_titre.insert(0, "Image basse \n résolution")
 
     d.graphe(liste_image, liste_titre)
 

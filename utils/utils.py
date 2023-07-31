@@ -5,7 +5,7 @@ import imageio.v2 as imageio #type:ignore
 import tensorflow as tf #type: ignore
 import numpy as np #type:ignore
 
-#---------------------------Image----------------------------#
+#---------------Image----------------#
 
 class Image:
 
@@ -14,7 +14,7 @@ class Image:
         """Permet d'enregister une image
 
         Parameters
-        ----------
+        ----
         image_path : str
             Le chemin ou enregistrer l'image
         image : numpy.ndarray
@@ -27,12 +27,12 @@ class Image:
         """Permet de charger une image standard
         
         Parameters
-        ----------
+        ----
         image_path : str
             Le chemin de l'image à charger
 
         Returns
-        ----------
+        ----
         img : numpy.ndarray
             L'image chargée
         """
@@ -49,12 +49,12 @@ class Image:
         """Permet d'enregister une image avec 1 channel
         
         Parameters
-        ----------
+        ----
         iamge_path : str
             Le chemin de l'image à charger
 
         Returns
-        ----------
+        ----
         img : numpy.ndarray
             L'image chargée
         """
@@ -67,12 +67,12 @@ class Image:
         return img
     
     @staticmethod
-    def load_streamlit(uploaded_file, image_path = "temp_image.tif", bw = False):
+    def load_streamlit(uploaded_file, image_path = "temp_image.png", bw = False):
         """Permet d'enregister une image issue du widget file uploader
         de streamlit
         
         Parameters
-        ----------
+        ----
         uploaded_file : 
             Sortie du widget file_uploader
         image_path : str, optional
@@ -81,7 +81,7 @@ class Image:
             Si vrai, l'image sera chargée en noir et blanc
         
         Returns
-        ----------
+        ----
         img : numpy.ndarray
             L'image chargée
         """
@@ -90,7 +90,7 @@ class Image:
         if bw:
             img = cv2.imread(image_path, 0)
         else: 
-            img = cv2.imread(image_path)
+            img = cv2.imread(image_path,cv2.IMREAD_UNCHANGED)
 
         return img
     
@@ -99,12 +99,12 @@ class Image:
         """Permet d'inverser une image
         
         Parameters
-        ----------
+        ----
         image : numpy.ndarray
             L'image à inverser
         
         Returns
-        ----------
+        ----
         img : numpy.ndarray
             L'image chargée
         """
@@ -119,14 +119,14 @@ class Image:
         2/ Il divise par quatre la résolution de l'image
         
         Parameters
-        ----------
+        ----
         image : numpy.ndarray
             L'image à inverser
         ratio : int, optional
             Le ration pour reduire l'image
         
         Returns
-        ----------
+        ----
         image_hr2: numpy.ndarray
             L'image divisble par 4
         image_lr: numpy.ndarray
@@ -151,14 +151,14 @@ class Image:
         """Crop l'image en fonction des coordonées entrées
         
         Parameters
-        ----------
+        ----
         image : numpy.ndarray
             L'image à crop
         croop_coords : tuples
             Les coordonées ou cropper dans l'ordre [x1, x2, y1, y2]
         
         Returns
-        ----------
+        ----
         img: numpy.ndarray
             L'image crop
         """
@@ -166,7 +166,7 @@ class Image:
         return img
 
 
-#-------------------------Data_Utils--------------------------#
+#-------------Data_Utils--------------#
 
 class Data_Utils :
 
@@ -177,7 +177,7 @@ class Data_Utils :
         Les deux premiers titres sont affichés en gras
         
         Parameters
-        ----------
+        ----
         liste_image : list[numpy.ndarray]
             Liste des images à afficher
         liste_titre : list[str]
@@ -213,17 +213,17 @@ class Data_Utils :
         """Retrouve les chemins des images d'un dossier
         
         Parameters
-        ----------
+        ----
         folder_path : str
             Le dossier ou se trouve les images
 
         Returns
-        ----------
+        ----
         liste_chemin: list[str]
             La liste de tout les chemis des images
         """
         liste_chemin = []
-        for nom_fichier in os.listdir(folder_path):
+        for nom_fichier in sorted(os.listdir((folder_path))):
             chemin_ = os.path.join(folder_path, nom_fichier)
             liste_chemin.append(chemin_)
         
@@ -237,7 +237,7 @@ class Data_Utils :
         son contenue avant si besoin
         
         Parameters
-        ----------
+        ----
         folder_path : str
             Le chemin du dossier à créer
         rm : Boolean, optional
@@ -321,7 +321,7 @@ class Data_Utils :
 
 
 
-#-------------------------Model_Utils--------------------------#
+#-------------Model_Utils--------------#
 
 tf.get_logger().setLevel('ERROR')
 
@@ -332,7 +332,7 @@ class Model_utils:
         """Crée le modèle pour la classification
 
         Returns
-        ----------
+        ----
         model: tf.model
             La structure du model de classification
         """
@@ -382,42 +382,55 @@ class Model_utils:
         dans le modèle, affiche un carrée vert si une fissure est détéctée
         
         Parameters
-        ----------
+        ----
         image: numpy.ndarray
             L'image 
         model: tf.model
             Le model pour les prédictions
 
         Returns
-        ----------
+        ----
         image: numpy.ndarray
             L'image avec les prédictions
         """
-        height, width, _ = image.shape
-        num_crops = min(height, width) // 96
+       
         crops = []
         
-        for i in range(num_crops):
-            for j in range(num_crops):
-                crop = image[i*96:(i+1)*96, j*96:(j+1)*96]
-                crops.append(crop)
+        image_width, image_height, _ = image.shape
+
+        square_size = 96
+
+        num_rows = image_width // square_size
+        num_cols = image_height // square_size
+
+        for row in range(num_rows):
+            for col in range(num_cols):
+                left = col * square_size
+                top = row * square_size
+                right = left + square_size
+                bottom = top + square_size
+
+                square = image[top:bottom, left:right]
+                crops.append(square)
 
         crops = np.array(crops)
 
         crops = crops 
 
         predictions = model.predict(crops)
+
+        image2 = cv2.imread("IMG/vn_crack.png")
         
         for idx, pred in enumerate(predictions):
-            i = idx // num_crops
-            j = idx % num_crops
+            i = idx // num_cols
+            j = idx % num_cols
             x = j * 96
             y = i * 96
 
             if np.argmax(pred) == 1:
                 col = (0,255,0)
-                cv2.rectangle(image, (x, y), (x+96, y+96), col, 2)
+                cv2.rectangle(image2, (x, y), (x+96, y+96), col, 2)
             else:
                 col = (255,0,0)
             
-        return image
+        return image2
